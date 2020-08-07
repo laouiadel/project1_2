@@ -1,0 +1,83 @@
+
+# SPDX-License-Identifier: Apache-2.0
+version: '2.1'
+
+volumes:
+  pgdata:
+  walletstore:
+
+networks:
+  mynetwork.dz:
+    external:
+      name: net_MyNetwork
+
+services:
+
+  explorerdb.mynetwork.dz:
+    image: hyperledger/explorer-db:latest
+    container_name: explorerdb.mynetwork.dz
+    hostname: explorerdb.mynetwork.dz
+    environment:
+      - DATABASE_DATABASE=fabricexplorer
+      - DATABASE_USERNAME=hppoc
+      - DATABASE_PASSWORD=password
+    healthcheck:
+      test: "pg_isready -h localhost -p 5432 -q -U postgres"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - mynetwork.dz
+
+  explorer.mynetwork.dz:
+    image: hyperledger/explorer:latest
+    container_name: explorer.mynetwork.dz
+    hostname: explorer.mynetwork.dz
+    environment:
+      - DATABASE_HOST=explorerdb.mynetwork.dz
+      - DATABASE_DATABASE=fabricexplorer
+      - DATABASE_USERNAME=hppoc
+      - DATABASE_PASSWD=password
+      - LOG_LEVEL_APP=debug
+      - LOG_LEVEL_DB=debug
+      - LOG_LEVEL_CONSOLE=info
+      - LOG_CONSOLE_STDOUT=true
+      - DISCOVERY_AS_LOCALHOST=false
+    volumes:
+      - ./config.json:/opt/explorer/app/platform/fabric/config.json
+      - ./connection-profile:/opt/explorer/app/platform/fabric/connection-profile
+      - ./crypto-config:/tmp/crypto
+      - walletstore:/opt/wallet
+    command: sh -c "node /opt/explorer/main.js && tail -f /dev/null"
+    ports:
+      - 8080:8080
+    depends_on:
+      explorerdb.mynetwork.dz:
+        condition: service_healthy
+    networks:
+      - mynetwork.dz
+
+  proms:
+    container_name: proms
+    image: prom/prometheus:latest
+    volumes:
+      - ../prometheus-2.19.2.linux-amd64/prometheus.yml:/etc/prometheus/prometheus.yml
+#      - prometheus-storage:/prometheus
+    ports:
+      - '9090:9090'
+    networks:
+      - mynetwork.dz
+
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:latest
+    volumes:
+      - ../grafana-7.0.6/conf/provisioning:/etc/grafana/provisioning
+
+    ports:
+      - '3000:3000'
+    networks:
+      - mynetwork.dz            

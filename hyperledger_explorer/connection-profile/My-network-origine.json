@@ -1,0 +1,89 @@
+{
+	"name": "My-network",
+	"version": "1.0.0",
+	"client": {
+		"tlsEnable": true,
+		"adminUser": "admin",
+		"adminPassword": "adminpw",
+		"enableAuthentication": false,
+		"organization": "Organisation1",
+		"connection": {
+			"timeout": {
+				"peer": {
+					"endorser": "300"
+				},
+				"orderer": "300"
+			}
+		}
+	},
+	"channels": {
+		"firstchannel": {
+			"peers": {
+				"peer0.org1.dz": {},
+				"peer1.org1.dz": {}
+			},
+			"connection": {
+				"timeout": {
+					"peer": {
+						"endorser": "6000",
+						"eventHub": "6000",
+						"eventReg": "6000"
+					}
+				}
+			}
+		},
+		
+		"secondchannel": {
+			"peers": {
+				"peer0.org1.dz": {},
+				"peer1.org1.dz": {}
+			},
+			"connection": {
+				"timeout": {
+					"peer": {
+						"endorser": "6000",
+						"eventHub": "6000",
+						"eventReg": "6000"
+					}
+				}
+			}
+		}
+	},
+	"organizations": {
+		"Organisation1": {
+			"mspid": "PeerOrg1MSP",
+			"adminPrivateKey": {
+				"path": "/tmp/crypto/peerOrganizations/org1.dz/users/Admin@org1.dz/msp/keystore/6407a4bcfcd6f40d96d3a288a2f82555b368d8865ace371fd0b9026d81e9c6d5_sk"
+			},
+			"peers": ["peer0.org1.dz","peer1.org1.dz"],
+			"signedCert": {
+				"path": "/tmp/crypto/peerOrganizations/org1.dz/users/Admin@org1.dz/msp/signcerts/Admin@org1.dz-cert.pem"
+			}
+		}
+	},
+	"peers": {
+		"peer0.org1.dz": {
+			"tlsCACerts": {
+				"path": "/tmp/crypto/peerOrganizations/org1.dz/peers/peer0.org1.dz/tls/ca.crt"
+			},
+			"url": "grpcs://peer0.org1.dz:7051",
+			"eventUrl": "grpcs://peer0.org1.dz:7053",
+			"grpcOptions": {
+				"ssl-target-name-override": "peer0.org1.dz"
+			}
+		},
+
+
+		"peer1.org1.dz": {
+			"tlsCACerts": {
+				"path": "/tmp/crypto/peerOrganizations/org1.dz/peers/peer1.org1.dz/tls/ca.crt"
+			},
+			"url": "grpcs://peer1.org1.dz:8051",
+			"eventUrl": "grpcs://peer1.org1.dz:8053",
+			"grpcOptions": {
+				"ssl-target-name-override": "peer1.org1.dz"
+			}
+		}
+
+	}
+}
